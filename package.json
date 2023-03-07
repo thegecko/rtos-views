@@ -27,12 +27,10 @@
         "cortex"
     ],
     "activationEvents": [
-        "onDebugResolve:cortex-debug",
-        "onDebugResolve:cppdbg",
-        "onDebugResolve:cspy",
-        "onCommand:mcu-debug.rtos-views.helloWorld"
+        "onDebug"
     ],
     "main": "./dist/extension.js",
+    "browser": "./dist/web-extension.js",
     "contributes": {
         "commands": [
             {
@@ -131,5 +129,8 @@
     },
     "extensionDependencies": [
         "mcu-debug.debug-tracker-vscode"
+    ],
+    "extensionKind": [
+        "ui"
     ]
 }

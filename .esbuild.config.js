@@ -16,7 +16,7 @@ function onRebuildReport(pkg, error, result) {
 // Build the editor provider
 esbuild
     .build({
-        entryPoints: ['src/extension.ts'],
+        entryPoints: ['src/desktop/extension.ts'],
         tsconfig: './tsconfig.json',
         bundle: true,
         external: ['vscode'],
@@ -24,7 +24,7 @@ esbuild
         minify: prod,
         watch: watch && {
             onRebuild(error, result) {
-                onRebuildReport('Extension', error, result);
+                onRebuildReport('Desktop Extension', error, result);
             }
         },
         platform: 'node',
@@ -47,5 +47,23 @@ esbuild
         },
         platform: 'browser',
         outfile: 'dist/rtos-view.js'
+    })
+    .catch(() => process.exit(1));
+
+esbuild
+    .build({
+        entryPoints: ['src/browser/extension.ts'],
+        tsconfig: './tsconfig.json',
+        bundle: true,
+        external: ['vscode'],
+        sourcemap: watch ? 'inline' : false,
+        minify: prod,
+        watch: watch && {
+            onRebuild(error, result) {
+                onRebuildReport('Browser Extension', error, result);
+            }
+        },
+        platform: 'browser',
+        outfile: 'dist/web-extension.js'
     })
     .catch(() => process.exit(1));

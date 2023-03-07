@@ -1,7 +1,4 @@
 import * as vscode from 'vscode';
-import * as os from 'os';
-import * as fs from 'fs';
-import * as path from 'path';
 import * as RTOSCommon from './rtos-common';
 import { RTOSFreeRTOS } from './rtos-freertos';
 import { RTOSUCOS2 } from './rtos-ucosii';
@@ -255,8 +252,11 @@ export class RTOSTracker implements DebugEventHandler {
     public enabled: boolean;
     public visible: boolean = false;
 
-    constructor(private context: vscode.ExtensionContext) {
-        this.provider = new RTOSViewProvider(context.extensionUri, this);
+    constructor(
+        context: vscode.ExtensionContext,
+        writeHtmlToTmpDir: (html: string) => void
+    ) {
+        this.provider = new RTOSViewProvider(context.extensionUri, this, writeHtmlToTmpDir);
         this.theTracker = new MyDebugTracker(context, this);
         const config = vscode.workspace.getConfiguration('mcu-debug.rtos-views', null);
 
@@ -450,7 +450,11 @@ class RTOSViewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'rtos-views.rtos';
     private webviewView: vscode.WebviewView | undefined;
 
-    constructor(private readonly extensionUri: vscode.Uri, private parent: RTOSTracker) { }
+    constructor(
+        private readonly extensionUri: vscode.Uri,
+        private parent: RTOSTracker,
+        private writeHtmlToTmpDir: (html: string) => void
+    ) { }
 
     public resolveWebviewView(
         webviewView: vscode.WebviewView,
@@ -561,38 +565,8 @@ class RTOSViewProvider implements vscode.WebviewViewProvider {
                 <script type="module" nonce="${nonce}" src="${scriptUri}"></script>
             </body>
             </html>`;
-        writeHtmlToTmpDir(ret);
+        this.writeHtmlToTmpDir(ret);
         return ret;
-    }
-}
-
-function writeHtmlToTmpDir(str: string) {
-    try {
-        // eslint-disable-next-line no-constant-condition
-        if (false) {
-            const fname = path.join(os.tmpdir(), 'rtos.html');
-            console.log(`Write HTML to file ${fname}`);
-            fs.writeFileSync(fname, str);
-        }
-    } catch (e) {
-        console.log(e ? e.toString() : 'unknown exception?');
-    }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function appendMsgToTmpDir(str: string) {
-    try {
-        // eslint-disable-next-line no-constant-condition
-        if (false) {
-            const fname = path.join(os.tmpdir(), 'rtos-msgs.txt');
-            console.log(`Write ${str} to file ${fname}`);
-            if (!str.endsWith('\n')) {
-                str = str + '\n';
-            }
-            fs.appendFileSync(fname, str);
-        }
-    } catch (e) {
-        console.log(e ? e.toString() : 'unknown exception?');
     }
 }
 
